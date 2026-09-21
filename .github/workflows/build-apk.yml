@@ -13,12 +13,10 @@ jobs:
 
     steps:
 
-      # 1. Get repository code
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # 2. Setup Java 17
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -26,14 +24,12 @@ jobs:
           java-version: "17"
 
 
-      # 3. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
 
-      # 4. Install system dependencies
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -53,20 +49,16 @@ jobs:
             libssl-dev
 
 
-      # 5. Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
 
-      # 6. Accept ALL Android SDK licenses
       - name: Accept Android SDK licenses
         run: |
           yes | sdkmanager --licenses > /dev/null || true
-
           echo "All Android SDK licenses accepted."
 
 
-      # 7. Install Android SDK packages
       - name: Install Android SDK packages
         run: |
           sdkmanager \
@@ -77,7 +69,6 @@ jobs:
           echo "Android SDK packages installed."
 
 
-      # 8. Show Android SDK information
       - name: Check Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
@@ -89,7 +80,6 @@ jobs:
           adb version
 
 
-      # 9. Install Buildozer
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
@@ -99,13 +89,11 @@ jobs:
           pip install cython==0.29.37
 
 
-      # 10. Build Calculator APK
       - name: Build Calculator APK
         run: |
           buildozer android debug
 
 
-      # 11. Upload APK
       - name: Upload Calculator APK
         uses: actions/upload-artifact@v4
         with:
