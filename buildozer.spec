@@ -26,8 +26,6 @@ android.sdk_path = /usr/local/lib/android/sdk
 
 android.accept_sdk_license = True
 
-android.skip_update = True
-
 android.allow_backup = True
 
 
