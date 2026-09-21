@@ -11,14 +11,16 @@ jobs:
   build:
     runs-on: ubuntu-22.04
 
+    env:
+      ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+      ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
+
     steps:
 
-      # 1. Download project
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # 2. Java 17
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -26,14 +28,12 @@ jobs:
           java-version: "17"
 
 
-      # 3. Python 3.11
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
 
-      # 4. Linux dependencies
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -55,52 +55,12 @@ jobs:
             libssl-dev
 
 
-      # 5. Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
           accept-android-sdk-licenses: true
 
 
-      # 6. Android SDK packages
-      - name: Install Android SDK packages
-        run: |
-          sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-
-          yes | sdkmanager --licenses || true
-
-
-      # 7. Check Android SDK
-      - name: Check Android SDK
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-
-          echo "sdkmanager:"
-          which sdkmanager
-
-          echo "sdkmanager version:"
-          sdkmanager --version
-
-          echo "ADB:"
-          adb version
-
-
-      # 8. Check AIDL
-      - name: Check AIDL
-        run: |
-          echo "Checking AIDL..."
-
-          test -f "$ANDROID_SDK_ROOT/build-tools/35.0.0/aidl"
-
-          echo "AIDL found successfully:"
-          ls -lh "$ANDROID_SDK_ROOT/build-tools/35.0.0/aidl"
-
-
-      # 9. Install Buildozer
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip
@@ -110,20 +70,45 @@ jobs:
           pip install cython==0.29.37
 
 
-      # 10. Remove old Buildozer cache
-      - name: Clean Buildozer cache
+      - name: Prepare Buildozer Android SDK
+        run: |
+          mkdir -p "$ANDROID_SDK_ROOT"
+
+          yes | sdkmanager --licenses || true
+
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;37.0.0"
+
+          yes | sdkmanager --licenses || true
+
+
+      - name: Check AIDL
+        run: |
+          echo "Android SDK:"
+          echo "$ANDROID_SDK_ROOT"
+
+          echo "Build Tools:"
+          ls -la "$ANDROID_SDK_ROOT/build-tools/"
+
+          echo "AIDL:"
+          ls -lh "$ANDROID_SDK_ROOT/build-tools/37.0.0/aidl"
+
+          test -f "$ANDROID_SDK_ROOT/build-tools/37.0.0/aidl"
+
+
+      - name: Clean Buildozer
         run: |
           rm -rf .buildozer
           rm -rf bin
 
 
-      # 11. Build APK
       - name: Build Calculator APK
         run: |
           buildozer android debug
 
 
-      # 12. Upload APK
       - name: Upload Calculator APK
         uses: actions/upload-artifact@v4
         with:
