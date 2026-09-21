@@ -50,13 +50,10 @@ jobs:
 
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-
-      - name: Accept Android SDK licenses
-        run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          echo "All Android SDK licenses accepted."
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: true
 
 
       - name: Install Android SDK packages
@@ -66,7 +63,10 @@ jobs:
             "platforms;android-35" \
             "build-tools;35.0.0"
 
-          echo "Android SDK packages installed."
+
+      - name: Accept all Android SDK licenses
+        run: |
+          yes | sdkmanager --licenses || true
 
 
       - name: Check Android SDK
