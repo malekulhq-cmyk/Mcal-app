@@ -4,15 +4,27 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - master
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PATH: /usr/local/lib/android/sdk/cmdline-tools/latest/bin:/usr/local/lib/android/sdk/platform-tools:${PATH}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -37,20 +49,13 @@ jobs:
             libffi-dev \
             libssl-dev
 
-      - name: Install Android SDK
+      - name: Install Android SDK components
         run: |
           yes | sdkmanager --licenses || true
-
           sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
-
-      - name: Check AIDL
-        run: |
-          echo "Checking AIDL..."
-          find "$ANDROID_SDK_ROOT" -name aidl -type f
-          which aidl || true
 
       - name: Install Buildozer
         run: |
