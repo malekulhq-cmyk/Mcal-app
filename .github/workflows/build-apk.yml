@@ -15,18 +15,12 @@ jobs:
 
     steps:
 
-      # -------------------------
-      # Checkout
-      # -------------------------
-
+      # 1. Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # -------------------------
-      # Java
-      # -------------------------
-
+      # 2. Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -34,20 +28,14 @@ jobs:
           java-version: "17"
 
 
-      # -------------------------
-      # Python
-      # -------------------------
-
+      # 3. Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
 
-      # -------------------------
-      # Linux dependencies
-      # -------------------------
-
+      # 4. Linux dependencies
       - name: Install system dependencies
         run: |
 
@@ -70,10 +58,7 @@ jobs:
             libssl-dev
 
 
-      # -------------------------
-      # Android SDK
-      # -------------------------
-
+      # 5. Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -84,10 +69,7 @@ jobs:
             build-tools;35.0.0
 
 
-      # -------------------------
-      # Fix old Buildozer SDK path
-      # -------------------------
-
+      # 6. Fix Buildozer sdkmanager path
       - name: Fix Buildozer sdkmanager path
         run: |
 
@@ -97,7 +79,7 @@ jobs:
           echo ""
           echo "Searching sdkmanager..."
 
-          find "$ANDROID_SDK_ROOT" \
+          find "$ANDROID_SDK_ROOT/cmdline-tools" \
             -name sdkmanager \
             -type f \
             -print
@@ -112,6 +94,7 @@ jobs:
             -type f \
             | head -n 1)
 
+          echo ""
           echo "Found sdkmanager:"
           echo "$SDKMANAGER"
 
@@ -123,24 +106,19 @@ jobs:
           ln -sf "$SDKMANAGER" \
             "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
 
-          chmod +x "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
-
           echo ""
-          echo "Checking Buildozer sdkmanager..."
+          echo "Buildozer sdkmanager:"
 
-          ls -lh \
+          ls -l \
             "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
 
           echo ""
-          echo "sdkmanager version:"
+          echo "Testing sdkmanager:"
 
           "$ANDROID_SDK_ROOT/tools/bin/sdkmanager" --version
 
 
-      # -------------------------
-      # Check Android SDK
-      # -------------------------
-
+      # 7. Check Android SDK
       - name: Check Android SDK
         run: |
 
@@ -150,7 +128,7 @@ jobs:
 
           echo ""
 
-          echo "SDK manager:"
+          echo "sdkmanager:"
 
           which sdkmanager
 
@@ -170,10 +148,7 @@ jobs:
             "$ANDROID_SDK_ROOT/build-tools/35.0.0/aidl"
 
 
-      # -------------------------
-      # Install Buildozer
-      # -------------------------
-
+      # 8. Install Buildozer
       - name: Install Buildozer
         run: |
 
@@ -188,10 +163,7 @@ jobs:
           pip install cython==0.29.37
 
 
-      # -------------------------
-      # Clean old build
-      # -------------------------
-
+      # 9. Clean old build
       - name: Clean Build
         run: |
 
@@ -200,20 +172,14 @@ jobs:
           rm -rf bin
 
 
-      # -------------------------
-      # Build APK
-      # -------------------------
-
+      # 10. Build APK
       - name: Build Calculator APK
         run: |
 
           buildozer android debug
 
 
-      # -------------------------
-      # Upload APK
-      # -------------------------
-
+      # 11. Upload APK
       - name: Upload Calculator APK
         uses: actions/upload-artifact@v4
 
